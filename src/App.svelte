@@ -7,6 +7,7 @@
   import Text from "./Text.svelte";
   import Drawing from "./Drawing.svelte";
   import DrawingCanvas from "./DrawingCanvas.svelte";
+  import DrawingShape from "./DrawingShape.svelte";
   import prepareAssets, { fetchFont } from "./utils/prepareAssets.js";
   import {
     readAsArrayBuffer,
@@ -27,6 +28,7 @@
   let selectedPageIndex = -1;
   let saving = false;
   let addingDrawing = false;
+  let addingShape = false;
   // for test purpose
   onMount(async () => {
     try {
@@ -150,6 +152,28 @@
       pIndex === selectedPageIndex ? [...objects, object] : objects
     );
   }
+  function onAddShape() {
+    if (selectedPageIndex >= 0) {
+      addingShape = true;
+    }
+  }
+  function addShape(originWidth, originHeight, path, scale = 1) {
+    const id = genID();
+    const object = {
+      id,
+      path,
+      type: "drawing",
+      x: 0,
+      y: 0,
+      originWidth,
+      originHeight,
+      width: originWidth * scale,
+      scale
+    };
+    allObjects = allObjects.map((objects, pIndex) =>
+      pIndex === selectedPageIndex ? [...objects, object] : objects
+    );
+  }
   function selectFontFamily(event) {
     const name = event.detail.name;
     fetchFont(name);
@@ -246,6 +270,14 @@
         class:bg-gray-500={selectedPageIndex < 0}>
         <img src="gesture.svg" alt="An icon for adding drawing" />
       </label>
+      <label
+        class="flex items-center justify-center h-full w-8 hover:bg-gray-500
+        cursor-pointer"
+        on:click={onAddShape}
+        class:cursor-not-allowed={selectedPageIndex < 0}
+        class:bg-gray-500={selectedPageIndex < 0}>
+        <img src="shape.svg" alt="An icon for shape drawing" />
+      </label>
     </div>
     <div class="justify-center mr-3 md:mr-4 w-full max-w-xs hidden md:flex">
       <img src="/edit.svg" class="mr-2" alt="a pen, edit pdf name" />
@@ -269,23 +301,23 @@
         alt="A GitHub icon leads to personal GitHub page" />
     </a>
   </div>
-  {#if addingDrawing}
+  {#if addingShape}
     <div
       transition:fly={{ y: -200, duration: 500 }}
       class="fixed z-10 top-0 left-0 right-0 border-b border-gray-300 bg-white
       shadow-lg"
       style="height: 50%;">
-      <DrawingCanvas
+      <DrawingShape
         on:finish={e => {
           const { originWidth, originHeight, path } = e.detail;
           let scale = 1;
           if (originWidth > 500) {
             scale = 500 / originWidth;
           }
-          addDrawing(originWidth, originHeight, path, scale);
-          addingDrawing = false;
+          addShape(originWidth, originHeight, path, scale);
+          addingShape = false;
         }}
-        on:cancel={() => (addingDrawing = false)} />
+        on:cancel={() => (addingShape = false)} />
     </div>
   {/if}
   {#if pages.length}
