@@ -304,7 +304,7 @@
   {#if addingShape}
     <div
       transition:fly={{ y: -200, duration: 500 }}
-      class="fixed z-10 top-0 left-0 right-0 border-b border-gray-300 bg-gray
+      class="fixed z-10 top-0 left-0 right-0 border-b border-gray-300 bg-gray-100
       shadow-lg"
       style="height: 50%;">
       <DrawingShape
